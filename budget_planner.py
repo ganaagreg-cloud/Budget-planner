@@ -48,18 +48,19 @@ from openpyxl.comments import Comment
 # ============================================================
 # SECTION 1: CONSTANTS
 # ============================================================
-PRIMARY_GREEN = "2D6A4F"
-LIGHT_GREEN = "B7E4C7"
-PALE_GREEN = "D8F3DC"
+PRIMARY_GREEN = "C9B8B8"   # dusty rose/mauve — title header fills
+LIGHT_GREEN = "B2D8D8"    # mint green — positive value fills, savings
+PALE_GREEN = "D4EDEA"     # light mint — alternating rows
 WHITE = "FFFFFF"
-LIGHT_GRAY = "F8F9FA"
+LIGHT_GRAY = "FDF6F0"     # warm cream — background / stat bars
 MEDIUM_GRAY = "E9ECEF"
-DARK_GRAY = "495057"
-ACCENT_BLUE = "1B4F72"
-SOFT_RED = "E63946"
+DARK_GRAY = "4A3728"      # warm dark brown — secondary text
+ACCENT_BLUE = "E8D5D5"    # soft pink — section header fills
+SOFT_RED = "D4756B"       # warm red — over budget
 LIGHT_RED = "FFE5E5"
-GOLD = "F4A261"
-DARK_TEXT = "212529"
+GOLD = "C9A84C"           # gold accent — KPI highlights, icons
+DARK_TEXT = "4A3728"      # warm dark brown — primary text
+POSITIVE_TEXT = "1A7272"  # dark teal — positive value / progress bar text
 YELLOW_INPUT = "FFF3CD"
 LAVENDER = "F3E8FF"
 LIGHT_BLUE = "D6EAF8"
@@ -124,19 +125,19 @@ CATEGORY_TYPE_LIST = ["Active", "Passive"]
 # ============================================================
 
 def style_title(cell, text=None):
-    """Large green header used for sheet title banners."""
+    """Dusty rose header used for sheet title banners."""
     if text is not None:
         cell.value = text
-    cell.font = Font(name=FONT_NAME, size=20, bold=True, color=WHITE)
+    cell.font = Font(name=FONT_NAME, size=20, bold=True, color=DARK_TEXT)
     cell.fill = PatternFill("solid", fgColor=PRIMARY_GREEN)
     cell.alignment = Alignment(horizontal="left", vertical="center")
 
 
 def style_section_header(cell, text=None):
-    """Blue section sub-header."""
+    """Soft pink section sub-header."""
     if text is not None:
         cell.value = text
-    cell.font = Font(name=FONT_NAME, size=13, bold=True, color=WHITE)
+    cell.font = Font(name=FONT_NAME, size=13, bold=False, color=DARK_TEXT)
     cell.fill = PatternFill("solid", fgColor=ACCENT_BLUE)
     cell.alignment = Alignment(horizontal="left", vertical="center")
 
@@ -172,7 +173,7 @@ def style_kpi(cell, value=None, color=DARK_TEXT, currency=False, percent=False):
 
 def style_positive(cell):
     cell.fill = PatternFill("solid", fgColor=LIGHT_GREEN)
-    cell.font = Font(name=FONT_NAME, color=PRIMARY_GREEN, bold=True)
+    cell.font = Font(name=FONT_NAME, color=POSITIVE_TEXT, bold=True)
 
 
 def style_negative(cell):
@@ -248,7 +249,7 @@ def cf_diff_green_red(ws, cell_range):
         cell_range,
         CellIsRule(operator="greaterThan", formula=["0"],
                    fill=PatternFill("solid", fgColor=LIGHT_GREEN),
-                   font=Font(name=FONT_NAME, color=PRIMARY_GREEN)),
+                   font=Font(name=FONT_NAME, color=POSITIVE_TEXT)),
     )
     ws.conditional_formatting.add(
         cell_range,
@@ -413,7 +414,7 @@ def build_start_here(wb):
     for i, (title, desc) in enumerate(steps):
         row = 12 + i
         ws[f"A{row}"] = f"{i + 1}."
-        ws[f"A{row}"].font = Font(name=FONT_NAME, bold=True, color=PRIMARY_GREEN, size=12)
+        ws[f"A{row}"].font = Font(name=FONT_NAME, bold=True, color=GOLD, size=12)
         ws[f"A{row}"].alignment = Alignment(horizontal="center")
         ws.merge_cells(f"B{row}:C{row}")
         ws[f"B{row}"] = title
@@ -530,12 +531,12 @@ def build_monthly_budget(wb):
         style_kpi_label(ws[label_cell])
         ws[label_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
         ws[val_cell] = formula
-        style_kpi(ws[val_cell], color=PRIMARY_GREEN, currency=True)
+        style_kpi(ws[val_cell], color=GOLD, currency=True)
         ws[val_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
     ws.merge_cells("G2:K2")
     ws["G2"] = ('=IF(F2>=0,"✅ Under Budget by "&TEXT(F2,"#,##0.00"),'
                  '"⚠️ Over Budget by "&TEXT(-F2,"#,##0.00"))')
-    ws["G2"].font = Font(name=FONT_NAME, bold=True, size=12, color=ACCENT_BLUE)
+    ws["G2"].font = Font(name=FONT_NAME, bold=True, size=12, color=DARK_TEXT)
     ws["G2"].alignment = Alignment(horizontal="left", vertical="center")
     ws["G2"].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
 
@@ -618,7 +619,7 @@ def build_monthly_budget(wb):
 def build_weekly_budget(wb):
     print("✅ Building Weekly Budget...")
     ws = wb.create_sheet("Weekly Budget")
-    ws.sheet_properties.tabColor = "40916C"
+    ws.sheet_properties.tabColor = "B2A0A0"
 
     set_col_widths(ws, {"A": 22, "B": 14, "C": 14, "D": 14, "E": 14, "F": 14, "G": 16})
 
@@ -719,7 +720,7 @@ def build_weekly_budget(wb):
 def build_paycheck_budget(wb):
     print("✅ Building Paycheck Budget...")
     ws = wb.create_sheet("Paycheck Budget")
-    ws.sheet_properties.tabColor = "52B788"
+    ws.sheet_properties.tabColor = "C9B8B8"
 
     set_col_widths(ws, {"A": 12, "B": 13, "C": 9, "D": 13, "E": 11, "F": 12,
                          "G": 11, "H": 11, "I": 12, "J": 13, "K": 13, "L": 13,
@@ -794,7 +795,7 @@ def build_paycheck_budget(wb):
     ws.merge_cells(f"B{rate_row}:N{rate_row}")
     ws[f"B{rate_row}"] = f"=(H{totals_row}+I{totals_row})/D{totals_row}"
     style_percent(ws[f"B{rate_row}"])
-    ws[f"B{rate_row}"].font = Font(name=FONT_NAME, bold=True, color=PRIMARY_GREEN, size=12)
+    ws[f"B{rate_row}"].font = Font(name=FONT_NAME, bold=True, color=POSITIVE_TEXT, size=12)
     ws[f"B{rate_row}"].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
 
     # --- 50/30/20 allocation breakdown ---
@@ -841,7 +842,7 @@ def build_paycheck_budget(wb):
 def build_biweekly_budget(wb):
     print("✅ Building Biweekly Budget...")
     ws = wb.create_sheet("Biweekly Budget")
-    ws.sheet_properties.tabColor = "74C69D"
+    ws.sheet_properties.tabColor = "D4EDEA"
 
     set_col_widths(ws, {"A": 36, "B": 18, "C": 18, "D": 18})
 
@@ -987,7 +988,7 @@ def build_expense_tracker(wb):
         style_kpi_label(ws[label_cell])
         ws[label_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
         ws[val_cell] = formula
-        style_kpi(ws[val_cell], color=PRIMARY_GREEN if currency else ACCENT_BLUE, currency=currency)
+        style_kpi(ws[val_cell], color=GOLD if currency else DARK_TEXT, currency=currency)
         ws[val_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
     ws.merge_cells("K2:M2")
     ws["K2"].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
@@ -1164,7 +1165,7 @@ def build_income_tracker(wb):
         style_kpi_label(ws[label_cell])
         ws[label_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
         ws[val_cell] = formula
-        style_kpi(ws[val_cell], color=PRIMARY_GREEN, currency=currency)
+        style_kpi(ws[val_cell], color=GOLD, currency=currency)
         ws[val_cell].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
     ws.merge_cells("I2:K2")
     ws["I2"].fill = PatternFill("solid", fgColor=LIGHT_GRAY)
@@ -1308,7 +1309,7 @@ def build_income_tracker(wb):
 def build_savings_goals(wb):
     print("✅ Building Savings Goals...")
     ws = wb.create_sheet("Savings Goals")
-    ws.sheet_properties.tabColor = "9D4EDD"
+    ws.sheet_properties.tabColor = "C9A84C"
     set_col_widths(ws, {"A": 16, "B": 14, "C": 22, "D": 14, "E": 20, "F": 14, "G": 12, "H": 14})
 
     ws.merge_cells("A1:H1")
@@ -1401,7 +1402,7 @@ def build_savings_goals(wb):
         pct_expr = f"IFERROR(MIN(B{r1}/F{r0},1),0)"
         bar_cell = ws[f"A{r2}"]
         bar_cell.value = progress_bar_expr(pct_expr)
-        bar_cell.font = Font(name=FONT_NAME, size=12, color=PRIMARY_GREEN)
+        bar_cell.font = Font(name=FONT_NAME, size=12, color=POSITIVE_TEXT)
         bar_cell.alignment = Alignment(horizontal="left", vertical="center")
         apply_border(bar_cell)
 
@@ -1483,7 +1484,7 @@ def build_savings_goals(wb):
     ws.merge_cells(f"A{bar_row}:H{bar_row}")
     overall_bar = ws[f"A{bar_row}"]
     overall_bar.value = progress_bar_expr(f"IFERROR(B{vals_row}/D{vals_row},0)")
-    overall_bar.font = Font(name=FONT_NAME, size=13, bold=True, color=PRIMARY_GREEN)
+    overall_bar.font = Font(name=FONT_NAME, size=13, bold=True, color=POSITIVE_TEXT)
     overall_bar.alignment = Alignment(horizontal="left", vertical="center")
     apply_border(overall_bar)
 
@@ -1498,7 +1499,7 @@ def build_savings_goals(wb):
 def build_debt_tracker(wb):
     print("✅ Building Debt Tracker...")
     ws = wb.create_sheet("Debt Tracker")
-    ws.sheet_properties.tabColor = "C9184A"
+    ws.sheet_properties.tabColor = "D4756B"
     set_col_widths(ws, {
         "A": 20, "B": 16, "C": 14, "D": 14, "E": 10, "F": 13, "G": 12,
         "H": 13, "I": 13, "J": 14, "K": 14, "L": 10, "M": 24, "N": 14,
@@ -1570,7 +1571,7 @@ def build_debt_tracker(wb):
         ws[f"L{row}"] = f"=IFERROR((C{row}-D{row})/C{row},0)"
         style_percent(ws[f"L{row}"])
         ws[f"M{row}"] = progress_bar_expr(f"IFERROR((C{row}-D{row})/C{row},0)")
-        ws[f"M{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"M{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
 
         for col in "ABCDEFGHIJKLMN":
             apply_border(ws[f"{col}{row}"])
@@ -1699,7 +1700,7 @@ def build_debt_tracker(wb):
 def build_sinking_funds(wb):
     print("✅ Building Sinking Funds...")
     ws = wb.create_sheet("Sinking Funds")
-    ws.sheet_properties.tabColor = "40A5C9"
+    ws.sheet_properties.tabColor = "B2D8D8"
     set_col_widths(ws, {
         "A": 22, "B": 16, "C": 15, "D": 15, "E": 15, "F": 15, "G": 11, "H": 24, "I": 14,
     })
@@ -1760,7 +1761,7 @@ def build_sinking_funds(wb):
         ws[f"G{row}"] = f"=IFERROR(D{row}/C{row},0)"
         style_percent(ws[f"G{row}"])
         ws[f"H{row}"] = progress_bar_expr(f"IFERROR(MIN(D{row}/C{row},1),0)")
-        ws[f"H{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"H{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
         style_date_cell(ws[f"I{row}"])
 
         for col in "ABCDEFGHI":
@@ -1802,7 +1803,7 @@ def build_sinking_funds(wb):
     ws[f"G{total_row}"].font = Font(name=FONT_NAME, bold=True)
 
     ws[f"H{total_row}"] = progress_bar_expr(f"IFERROR(D{total_row}/C{total_row},0)")
-    ws[f"H{total_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=PRIMARY_GREEN)
+    ws[f"H{total_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=POSITIVE_TEXT)
 
     for col in "ABCDEFGHI":
         apply_border(ws[f"{col}{total_row}"])
@@ -1820,7 +1821,7 @@ def build_sinking_funds(wb):
 def build_subscriptions(wb):
     print("✅ Building Subscriptions...")
     ws = wb.create_sheet("Subscriptions")
-    ws.sheet_properties.tabColor = "6C757D"
+    ws.sheet_properties.tabColor = "E8D5D5"
     set_col_widths(ws, {
         "A": 22, "B": 16, "C": 13, "D": 13, "E": 13, "F": 16, "G": 16, "H": 11,
     })
@@ -2168,7 +2169,7 @@ def build_annual_overview(wb):
         ws[f"D{row}"] = f"=B{row}-C{row}"
         ws[f"E{row}"] = f"=IFERROR(D{row}/B{row},0)"
         ws[f"F{row}"] = progress_bar_expr(f"IFERROR(MIN(C{row}/B{row},1),0)")
-        ws[f"F{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"F{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
         for col in "BCD":
             style_currency(ws[f"{col}{row}"])
         style_percent(ws[f"E{row}"])
@@ -2186,7 +2187,7 @@ def build_annual_overview(wb):
     ws[f"E{monthly_total_row}"] = f"=IFERROR(D{monthly_total_row}/B{monthly_total_row},0)"
     ws[f"F{monthly_total_row}"] = progress_bar_expr(
         f"IFERROR(MIN(C{monthly_total_row}/B{monthly_total_row},1),0)")
-    ws[f"F{monthly_total_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=PRIMARY_GREEN)
+    ws[f"F{monthly_total_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=POSITIVE_TEXT)
     for col in "BCD":
         style_currency(ws[f"{col}{monthly_total_row}"])
     style_percent(ws[f"E{monthly_total_row}"])
@@ -2228,7 +2229,7 @@ def build_annual_overview(wb):
         ws.merge_cells(f"E{row}:F{row}")
         ws[f"E{row}"] = progress_bar_expr(
             f"IFERROR(B{row}/MAX($B${cat_data_first}:$B${cat_data_last}),0)")
-        ws[f"E{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"E{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
         style_currency(ws[f"B{row}"])
         style_percent(ws[f"C{row}"])
         style_currency(ws[f"D{row}"])
@@ -2277,7 +2278,7 @@ def build_dashboard(wb):
         ws.merge_cells(f"{start_col}{label_row}:{end_col}{label_row}")
         lc = ws[f"{start_col}{label_row}"]
         lc.value = label
-        lc.font = Font(name=FONT_NAME, size=10, bold=True, color=WHITE)
+        lc.font = Font(name=FONT_NAME, size=10, bold=False, color=DARK_TEXT)
         lc.fill = PatternFill("solid", fgColor=ACCENT_BLUE)
         lc.alignment = Alignment(horizontal="center", vertical="center")
         apply_border(lc)
@@ -2353,7 +2354,7 @@ def build_dashboard(wb):
         pct_expr = (f"IFERROR(MIN(B{row}/INDEX('Monthly Budget'!E4:E103,"
                     f"MATCH(A{row},'Monthly Budget'!B4:B103,0)),1),0)")
         ws[f"C{row}"] = progress_bar_expr(pct_expr)
-        ws[f"C{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"C{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
         for col in "ABCD":
             apply_border(ws[f"{col}{row}"])
         if rank % 2 == 0:
@@ -2371,7 +2372,7 @@ def build_dashboard(wb):
                          f'TEXT(\'Savings Goals\'!F{r0},"$#,##0")')
         ws.merge_cells(f"G{row}:H{row}")
         ws[f"G{row}"] = f"='Savings Goals'!A{r2}"
-        ws[f"G{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"G{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
         for col in "EFGH":
             apply_border(ws[f"{col}{row}"])
         if i % 2 == 1:
@@ -2408,7 +2409,7 @@ def build_dashboard(wb):
         style_currency(ws[f"B{row}"])
         ws.merge_cells(f"C{row}:D{row}")
         ws[f"C{row}"] = f"='Debt Tracker'!M{debt_row}"
-        ws[f"C{row}"].font = Font(name=FONT_NAME, size=10, color=PRIMARY_GREEN)
+        ws[f"C{row}"].font = Font(name=FONT_NAME, size=10, color=POSITIVE_TEXT)
 
         nref = f"N{4 + j}"
         ws[f"E{row}"] = (
@@ -2437,7 +2438,7 @@ def build_dashboard(wb):
     overall_debt_pct = ("IFERROR((SUM('Debt Tracker'!C4:C7)-SUM('Debt Tracker'!D4:D7))"
                          "/SUM('Debt Tracker'!C4:C7),0)")
     ws[f"C{total_debt_row}"] = progress_bar_expr(overall_debt_pct)
-    ws[f"C{total_debt_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=PRIMARY_GREEN)
+    ws[f"C{total_debt_row}"].font = Font(name=FONT_NAME, size=10, bold=True, color=POSITIVE_TEXT)
     for col in "ABCD":
         apply_border(ws[f"{col}{total_debt_row}"])
         ws[f"{col}{total_debt_row}"].fill = PatternFill("solid", fgColor=PALE_GREEN)
